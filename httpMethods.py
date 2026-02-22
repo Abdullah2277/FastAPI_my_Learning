@@ -26,3 +26,8 @@ def update_item(item_id: int, data: Numbers):
     fake_db[item_id] = data
     return {"message": "Updated", "data": data}
 
+# PARTIAL UPDATE
+@app.patch("/items/{item_id}")
+def partial_update(item_id: int, data: Numbers):
+    return {"message": "Partially updated"}
+
