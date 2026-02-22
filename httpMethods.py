@@ -31,3 +31,8 @@ def update_item(item_id: int, data: Numbers):
 def partial_update(item_id: int, data: Numbers):
     return {"message": "Partially updated"}
 
+# DELETE
+@app.delete("/items/{item_id}")
+def delete_item(item_id: int):
+    fake_db.pop(item_id, None)
+    return {"message": "Deleted"}
