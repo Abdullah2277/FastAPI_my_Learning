@@ -33,3 +33,9 @@ def add(data: Numbers):
 @app.get("/users/{user_id}")
 def get_user(user_id: int):
     return {"user_id": user_id}
+
+# Query parameter — comes after the ? in URL
+# e.g. /items?skip=0&limit=10
+@app.get("/items")
+def get_items(skip: int = 0, limit: int = 10):
+    return {"skip": skip, "limit": limit}
