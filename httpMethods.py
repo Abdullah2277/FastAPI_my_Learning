@@ -14,3 +14,15 @@ class Numbers(BaseModel):
 def create_item(item_id: int, data: Numbers):
     fake_db[item_id] = data
     return {"message": "Created", "data": data}
+
+# READ
+@app.get("/items/{item_id}")
+def read_item(item_id: int):
+    return fake_db.get(item_id, {"error": "Not found"})
+
+# UPDATE (full replacement)
+@app.put("/items/{item_id}")
+def update_item(item_id: int, data: Numbers):
+    fake_db[item_id] = data
+    return {"message": "Updated", "data": data}
+
