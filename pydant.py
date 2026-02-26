@@ -20,3 +20,6 @@ class ItemResponse(BaseModel):
     price: float
     # notice: no description — we chose to hide it
 
+@app.post("/products-safe", response_model=ItemResponse)
+def create_product_safe(item: Item):
+    return item  # FastAPI will strip fields not in ItemResponse
