@@ -46,3 +46,7 @@ def get_user(user_id: int):
             detail=f"User {user_id} not found"
         )
     return fake_db[user_id]
+
+@app.post("/users", status_code=status.HTTP_201_CREATED)
+def create_user(data: Numbers):
+    return {"message": "User created"}
