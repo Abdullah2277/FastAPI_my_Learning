@@ -36,3 +36,13 @@ def partial_update(item_id: int, data: Numbers):
 def delete_item(item_id: int):
     fake_db.pop(item_id, None)
     return {"message": "Deleted"}
+
+# RESPONSE STATUS CODES
+@app.get("/users/{user_id}")
+def get_user(user_id: int):
+    if user_id not in fake_db:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User {user_id} not found"
+        )
+    return fake_db[user_id]
