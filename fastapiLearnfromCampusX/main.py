@@ -7,3 +7,6 @@ app = FastAPI()
 def greetings():
     return {"message": "Hello !"}
 
+@app.get("/about")
+def about():
+    return {"message": "I am learning Fast API !"}
