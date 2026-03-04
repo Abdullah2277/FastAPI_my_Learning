@@ -16,4 +16,6 @@ def verify_token(token: str):
         raise HTTPException(status_code=401, detail="Invalid token")
     return token
 
-
+@app.get("/secure-data")
+def secure_data(token: str = Depends(verify_token)):
+    return {"data": "This is protected"}
