@@ -67,3 +67,26 @@ def create_product(product: Product):
     next_id += 1  # increment for next product
 
     return new_product
+
+# 2. READ all products — GET /products
+@app.get(
+    "/products",
+    response_model=list[ProductResponse]  # returns a LIST of products
+)
+def get_all_products():
+    return list(inventory.values())  # return all products as a list
+
+
+# 3. READ one product by ID — GET /products/{id}
+@app.get(
+    "/products/{product_id}",
+    response_model=ProductResponse
+)
+def get_product(product_id: int):
+    # If product doesn't exist, raise 404
+    if product_id not in inventory:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Product with id {product_id} not found"
+        )
+    return inventory[product_id]
