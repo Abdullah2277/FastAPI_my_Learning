@@ -90,3 +90,28 @@ def get_product(product_id: int):
             detail=f"Product with id {product_id} not found"
         )
     return inventory[product_id]
+
+# 4. FULL UPDATE — PUT /products/{id}
+# Replaces the entire product with new data
+@app.put(
+    "/products/{product_id}",
+    response_model=ProductResponse
+)
+def update_product(product_id: int, product: Product):
+    if product_id not in inventory:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Product with id {product_id} not found"
+        )
+
+    # Replace everything, but keep the same id
+    updated_product = {
+        "id": product_id,
+        "name": product.name,
+        "price": product.price,
+        "stock": product.stock,
+        "category": product.category
+    }
+
+    inventory[product_id] = updated_product
+    return updated_product
