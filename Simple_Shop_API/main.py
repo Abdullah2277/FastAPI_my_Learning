@@ -115,3 +115,31 @@ def update_product(product_id: int, product: Product):
 
     inventory[product_id] = updated_product
     return updated_product
+
+# 5. PARTIAL UPDATE — PATCH /products/{id}
+# Only updates the fields you send
+@app.patch(
+    "/products/{product_id}",
+    response_model=ProductResponse
+)
+def partial_update_product(product_id: int, product: ProductUpdate):
+    if product_id not in inventory:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Product with id {product_id} not found"
+        )
+
+    existing = inventory[product_id]  # get current data
+
+    # Only overwrite fields that were actually sent
+    # If a field is None, it means client didn't send it — keep old value
+    if product.name is not None:
+        existing["name"] = product.name
+    if product.price is not None:
+        existing["price"] = product.price
+    if product.stock is not None:
+        existing["stock"] = product.stock
+    if product.category is not None:
+        existing["category"] = product.category
+
+    return existing
