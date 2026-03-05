@@ -40,3 +40,30 @@ class ProductResponse(BaseModel):
     price: float
     stock: int
     category: Optional[str] = None
+
+
+# ─────────────────────────────────────────
+# ROUTES
+# ─────────────────────────────────────────
+
+# 1. CREATE a product — POST /products
+@app.post(
+    "/products",
+    response_model=ProductResponse,
+    status_code=status.HTTP_201_CREATED  # 201 = resource was created
+)
+def create_product(product: Product):
+    global next_id  # access the global counter
+
+    new_product = {
+        "id": next_id,
+        "name": product.name,
+        "price": product.price,
+        "stock": product.stock,
+        "category": product.category
+    }
+
+    inventory[next_id] = new_product  # save to our dict
+    next_id += 1  # increment for next product
+
+    return new_product
