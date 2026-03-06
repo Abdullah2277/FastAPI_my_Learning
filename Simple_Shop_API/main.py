@@ -143,3 +143,18 @@ def partial_update_product(product_id: int, product: ProductUpdate):
         existing["category"] = product.category
 
     return existing
+
+# 6. DELETE a product — DELETE /products/{id}
+@app.delete(
+    "/products/{product_id}",
+    status_code=status.HTTP_200_OK
+)
+def delete_product(product_id: int):
+    if product_id not in inventory:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Product with id {product_id} not found"
+        )
+
+    deleted = inventory.pop(product_id)  # remove from dict
+    return {"message": f"Product '{deleted['name']}' deleted successfully"}
