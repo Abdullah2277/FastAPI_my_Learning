@@ -169,5 +169,12 @@ def search_by_category(category: str):  # query parameter
         p for p in inventory.values()
         if p["category"] and p["category"].lower() == category.lower()
     ]
+    if not results:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No products found in category '{category}'"
+        )
+
+    return results
 
     
