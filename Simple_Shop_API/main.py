@@ -158,3 +158,16 @@ def delete_product(product_id: int):
 
     deleted = inventory.pop(product_id)  # remove from dict
     return {"message": f"Product '{deleted['name']}' deleted successfully"}
+
+# 7 Search by category — GET /products/search?category=electronics
+@app.get(
+    "/products/search/filter",
+    response_model=list[ProductResponse]
+)
+def search_by_category(category: str):  # query parameter
+    results = [
+        p for p in inventory.values()
+        if p["category"] and p["category"].lower() == category.lower()
+    ]
+
+    
