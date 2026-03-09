@@ -179,4 +179,154 @@
 
 #     return results
 
-    
+
+# main.py
+
+from fastapi import FastAPI, HTTPException, Depends, status
+from sqlalchemy.orm import Session
+
+import models
+import schemas
+from database import engine, get_db
+
+# This creates all tables in the database automatically
+# if they don't already exist
+models.Base.metadata.create_all(bind=engine)
+
+app = FastAPI(title="Shop Inventory API")
+
+
+# ── CREATE ──────────────────────────────────────
+@app.post(
+    "/products",
+    response_model=schemas.ProductResponse,
+    status_code=status.HTTP_201_CREATED
+)
+def create_product(
+    product: schemas.ProductCreate,  # data from client
+    db: Session = Depends(get_db)    # database session injected
+):
+    # Create a new SQLAlchemy model instance
+    new_product = models.Product(
+        name=product.name,
+        price=product.price,
+        stock=product.stock,
+        category=product.category
+    )
+
+    db.add(new_product)   # add to session (like staging)
+    db.commit()           # save to database (like git commit)
+    db.refresh(new_product)  # reload from DB to get the generated id
+
+    return new_product
+
+
+# ── READ ALL ─────────────────────────────────────
+@app.get("/products", response_model=list[schemas.ProductResponse])
+def get_all_products(
+    skip: int = 0,       # pagination — how many to skip
+    limit: int = 10,     # pagination — max results to return
+    db: Session = Depends(get_db)
+):
+    products = db.query(models.Product).offset(skip).limit(limit).all()
+    return products
+
+
+# ── READ ONE ─────────────────────────────────────
+@app.get("/products/{product_id}", response_model=schemas.ProductResponse)
+def get_product(product_id: int, db: Session = Depends(get_db)):
+    product = db.query(models.Product).filter(
+        models.Product.id == product_id
+    ).first()  # .first() returns None if not found
+
+    if not product:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Product with id {product_id} not found"
+        )
+    return product
+
+
+# ── FULL UPDATE (PUT) ─────────────────────────────
+@app.put("/products/{product_id}", response_model=schemas.ProductResponse)
+def update_product(
+    product_id: int,
+    updated: schemas.ProductCreate,
+    db: Session = Depends(get_db)
+):
+    product = db.query(models.Product).filter(
+        models.Product.id == product_id
+    ).first()
+
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    # Overwrite all fields
+    product.name = updated.name
+    product.price = updated.price
+    product.stock = updated.stock
+    product.category = updated.category
+
+    db.commit()
+    db.refresh(product)
+    return product
+
+
+# ── PARTIAL UPDATE (PATCH) ────────────────────────
+@app.patch("/products/{product_id}", response_model=schemas.ProductResponse)
+def partial_update_product(
+    product_id: int,
+    updated: schemas.ProductUpdate,
+    db: Session = Depends(get_db)
+):
+    product = db.query(models.Product).filter(
+        models.Product.id == product_id
+    ).first()
+
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    # Only update fields that were actually sent
+    if updated.name is not None:
+        product.name = updated.name
+    if updated.price is not None:
+        product.price = updated.price
+    if updated.stock is not None:
+        product.stock = updated.stock
+        product.in_stock = updated.stock > 0  # auto-update in_stock flag
+    if updated.category is not None:
+        product.category = updated.category
+
+    db.commit()
+    db.refresh(product)
+    return product
+
+
+# ── DELETE ────────────────────────────────────────
+@app.delete("/products/{product_id}", status_code=status.HTTP_200_OK)
+def delete_product(product_id: int, db: Session = Depends(get_db)):
+    product = db.query(models.Product).filter(
+        models.Product.id == product_id
+    ).first()
+
+    if not product:
+        raise HTTPException(status_code=404, detail="Product not found")
+
+    db.delete(product)
+    db.commit()
+    return {"message": f"Product '{product.name}' deleted successfully"}
+
+
+# ── SEARCH BY CATEGORY ────────────────────────────
+@app.get("/products/search/filter", response_model=list[schemas.ProductResponse])
+def search_by_category(category: str, db: Session = Depends(get_db)):
+    products = db.query(models.Product).filter(
+        models.Product.category == category
+    ).all()
+
+    if not products:
+        raise HTTPException(
+            status_code=404,
+            detail=f"No products found in category '{category}'"
+        )
+    return products
