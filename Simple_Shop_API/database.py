@@ -15,3 +15,24 @@ engine = create_engine(
     connect_args={"check_same_thread": False}
 )
 
+# SessionLocal = a factory that creates database sessions
+# Each request gets its own session (like a temporary workspace)
+SessionLocal = sessionmaker(
+    autocommit=False,  # we manually control when to save
+    autoflush=False,
+    bind=engine
+)
+
+# Base = parent class for all our database table models
+class Base(DeclarativeBase):
+    pass
+
+
+# Dependency — gives each route its own DB session
+# and closes it automatically when the request is done
+def get_db():
+    db = SessionLocal()  # open session
+    try:
+        yield db         # give it to the route
+    finally:
+        db.close()       # always close, even if error occurs
