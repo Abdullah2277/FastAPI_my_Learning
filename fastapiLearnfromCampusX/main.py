@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Path, HTTPException
+from fastapi import FastAPI, Path, HTTPException, Query
 from pydantic import BaseModel
 import json
 
@@ -29,3 +29,12 @@ def viewPatient(patientID: str = Path(..., description = "ID of the Patient", ex
         return data[patientID]
     # return {"Error": "Patient Not Found !"}
     raise HTTPException(status_code = 404, detail = "Patient Not Found")
+
+@app.get('/sort')
+def sortPatients(sortBy: str = Query(..., description='Sort on the basis of bmi, height or weight'), order: str = Query('asc', description='sort in ascending or descending order')):
+    sortingOptions = ['bmi', 'height', 'weight']
+    orders = ['asc', 'desc']
+    if sortBy not in sortingOptions:
+        raise HTTPException(status_code=400, detail=f'Invalid Field. Select from {sortingOptions}')
+    if order not in orders:
+        raise HTTPException(status_code=400, detail=f'Invalid Field. Select from {orders}')
