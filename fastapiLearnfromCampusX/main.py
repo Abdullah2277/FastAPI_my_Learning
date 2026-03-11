@@ -5,10 +5,10 @@ app = FastAPI()
 
 @app.get("/")
 def greetings():
-    return {"message": "Hello !"}
+    return {"message": "Patient Management System API !"}
 
 @app.get("/about")
 def about():
-    return {"message": "I am learning Fast API !"}
+    return {"message": "A completely functional API to manage your patient records !"}
 
 # also learnt about docs and interactivity
