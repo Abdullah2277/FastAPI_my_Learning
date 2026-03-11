@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Path
 from pydantic import BaseModel
 import json
 
@@ -23,8 +23,8 @@ def viewData():
     return data
 
 @app.get("/viewPatient/{patientID}")
-def viewPatient(patientID):
+def viewPatient(patientID: str = Path(..., description = "ID of the Patient", example = "P001")):
     data = loadData()
     if patientID in data:
         return data[patientID]
-    return "Error: Patient Not Found !"
+    return {"Error: Patient Not Found !"}
