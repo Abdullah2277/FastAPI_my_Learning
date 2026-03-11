@@ -38,3 +38,7 @@ def sortPatients(sortBy: str = Query(..., description='Sort on the basis of bmi,
         raise HTTPException(status_code=400, detail=f'Invalid Field. Select from {sortingOptions}')
     if order not in orders:
         raise HTTPException(status_code=400, detail=f'Invalid Field. Select from {orders}')
+    data = loadData()
+    sortOrder = True if order == 'desc' else False
+    sortedData = sorted(data.values(), key=lambda x: x.get(sortBy, 0),reverse=sortOrder)
+    return sortedData
