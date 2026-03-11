@@ -21,3 +21,10 @@ def about():
 def viewData():
     data = loadData()
     return data
+
+@app.get("/viewPatient/{patientID}")
+def viewPatient(patientID):
+    data = loadData()
+    if patientID in data:
+        return data[patientID]
+    return "Error: Patient Not Found !"
