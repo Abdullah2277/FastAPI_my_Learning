@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Path
+from fastapi import FastAPI, Path, HTTPException
 from pydantic import BaseModel
 import json
 
@@ -27,4 +27,5 @@ def viewPatient(patientID: str = Path(..., description = "ID of the Patient", ex
     data = loadData()
     if patientID in data:
         return data[patientID]
-    return {"Error: Patient Not Found !"}
+    # return {"Error": "Patient Not Found !"}
+    raise HTTPException(status_code = 404, detail = "Patient Not Found")
